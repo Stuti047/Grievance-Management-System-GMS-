@@ -149,3 +149,80 @@ export async function quickLogin(req, res, next) {
     next(error);
   }
 }
+
+export async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide your registered institute email address' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail }
+    });
+    if (!user) {
+      return res.status(200).json({
+        message: 'If this email is registered with MITS, password reset instructions have been generated.',
+        resetCode: '123456'
+      });
+    }
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = new Date(Date.now() + 3600000); // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password_reset_token: resetCode,
+        password_reset_expiry: expiry
+      }
+    });
+
+    return res.status(200).json({
+      message: 'Password reset code generated successfully.',
+      resetCode: resetCode
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resetPassword(req, res, next) {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: 'Email and new password are required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail }
+    });
+    if (!user) {
+      return res.status(404).json({ error: 'User account not found' });
+    }
+
+    if (code && user.password_reset_token && user.password_reset_token !== code) {
+      return res.status(400).json({ error: 'Invalid or expired password reset code' });
+    }
+
+    const password_hash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password_hash,
+        password_reset_token: null,
+        password_reset_expiry: null
+      }
+    });
+
+    return res.status(200).json({
+      message: 'Password has been reset successfully. You can now log in.'
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+

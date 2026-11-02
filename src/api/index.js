@@ -165,6 +165,24 @@ export const auth = {
     }
   },
 
+  async forgotPassword(email) {
+    try {
+      const res = await apiClient.post('/auth/forgot-password', { email });
+      return res.data;
+    } catch (err) {
+      return { error: err.response?.data?.error || err.message || 'Password reset request failed' };
+    }
+  },
+
+  async resetPassword(email, code, newPassword) {
+    try {
+      const res = await apiClient.post('/auth/reset-password', { email, code, newPassword });
+      return res.data;
+    } catch (err) {
+      return { error: err.response?.data?.error || err.message || 'Password reset failed' };
+    }
+  },
+
   async getMe() {
     try {
       const res = await apiClient.get('/auth/me');
@@ -489,28 +507,11 @@ export const lookup = {
   }
 };
 
-export const authorities = {
-  getAll() {
-    return apiClient.get('/authorities');
-  },
-  update(id, data) {
-    return apiClient.put(`/authorities/${id}`, data);
-  },
-  mapCategory(category_id, authority_id) {
-    return apiClient.post('/authorities/map-category', { category_id, authority_id });
-  },
-  getAuditLogs() {
-    return apiClient.get('/authorities/audit-logs');
-  }
-};
-
 export function resetDatabase() {
   console.info('Database reset requested. Local auth token cleared.');
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
 }
 
-const api = { auth, grievances, admin, analytics, lookup, authorities, client: apiClient, resetDatabase };
-export { api, apiClient };
+const api = { auth, grievances, admin, analytics, lookup, resetDatabase };
 export default api;
-

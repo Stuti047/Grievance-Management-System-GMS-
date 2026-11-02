@@ -17,7 +17,7 @@ import AdminDashboardView from './components/AdminDashboardView';
 import AdminAddAccountView from './components/AdminAddAccountView';
 import StudentManagementView from './components/StudentManagementView';
 import AdminComplaintsView from './components/AdminComplaintsView';
-import ResponsibleAuthoritiesView from './components/ResponsibleAuthoritiesView';
+import FacultyDirectoryView from './components/FacultyDirectoryView';
 
 function MainLayout() {
   const { currentUser, activeTab } = useApp();
@@ -28,7 +28,7 @@ function MainLayout() {
       <div className="min-h-screen bg-[#080e1a] text-slate-100 flex flex-col justify-between">
         <Header />
         <main className="flex-1 flex flex-col justify-center">
-          {activeTab === 'authorities' ? <ResponsibleAuthoritiesView /> : <LoginView />}
+          <LoginView />
         </main>
         <AnonymousTrackerModal />
         <AIChatbotWidget />
@@ -58,11 +58,12 @@ function MainLayout() {
         {activeTab === 'admin_add_account' && <AdminAddAccountView />}
         {activeTab === 'student_management' && <StudentManagementView />}
         {activeTab === 'admin_complaints' && <AdminComplaintsView />}
-        {activeTab === 'authorities' && <ResponsibleAuthoritiesView />}
         {activeTab === 'submit' && <SubmitComplaintView />}
         {activeTab === 'my_tickets' && <MyTicketsView />}
         {activeTab === 'community' && <CommunityFeedView />}
         {activeTab === 'analytics' && <AnalyticsView />}
+        {activeTab === 'authorities' && <FacultyDirectoryView />}
+        {activeTab === 'faculty' && <FacultyDirectoryView />}
         {activeTab === 'login' && <LoginView />}
       </main>
 

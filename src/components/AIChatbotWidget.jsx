@@ -27,7 +27,6 @@ import {
   getAllKnowledgeEntries, 
   CATEGORY_MAP 
 } from '../utils/knowledgeBaseService';
-import { structureGrievanceDraft, suggestCategoryAndPriority } from '../utils/grievanceDraftingEngine';
 
 export default function AIChatbotWidget() {
   const { 
@@ -224,17 +223,52 @@ export default function AIChatbotWidget() {
       const isDraftIntent = lower.includes('draft') || lower.includes('lodge') || lower.includes('write a complaint') || lower.includes('file a complaint about');
 
       let jsonOutput = null;
-      if (isDraftIntent || (!kbResult.match && query.trim().length >= 10)) {
-        const draft = structureGrievanceDraft(query);
-        if (draft) {
-          jsonOutput = {
-            category: draft.suggestedCategory,
-            title: draft.title,
-            description: draft.description,
-            location: draft.location,
-            priority: draft.suggestedPriority
-          };
+      if (isDraftIntent || (!kbResult.match && (lower.includes('mess') || lower.includes('wifi') || lower.includes('water') || lower.includes('exam') || lower.includes('hostel')))) {
+        let extractedCategory = 'cat_infra';
+        let extractedTitle = query;
+        let extractedDescription = query;
+        let extractedLocation = 'Campus General';
+        let extractedPriority = 'Medium';
+
+        if (lower.includes('mess') || lower.includes('food') || lower.includes('dinner') || lower.includes('chapati') || lower.includes('cater')) {
+          extractedCategory = 'cat_mess';
+          extractedTitle = 'Substandard food hygiene and meal preparation in Hostel Mess';
+          extractedDescription = `Student reported significant issues regarding mess catering: "${query}". Requesting formal hygiene inspection and quality audit of meal preparation.`;
+          extractedLocation = 'Hostel BH-1 Dining Hall';
+          extractedPriority = 'High';
+        } else if (lower.includes('wifi') || lower.includes('internet') || lower.includes('router') || lower.includes('network')) {
+          extractedCategory = 'cat_it';
+          extractedTitle = 'Severe Wi-Fi connectivity disruption in residential wing';
+          extractedDescription = `Access point failure reported: "${query}". Students are unable to access LMS, research portals, and technical submissions.`;
+          extractedLocation = 'Hostel Block C, 2nd Floor';
+          extractedPriority = 'High';
+        } else if (lower.includes('timetable') || lower.includes('class') || lower.includes('faculty') || lower.includes('exam') || lower.includes('lab')) {
+          extractedCategory = 'cat_academic';
+          extractedTitle = 'Academic scheduling conflict / Lab infrastructure issue';
+          extractedDescription = `Academic discrepancy: "${query}". Requires immediate alignment by Head of Department and Dean Academics.`;
+          extractedLocation = 'Mathematics & Computing Lab 2';
+          extractedPriority = 'Urgent';
+        } else if (lower.includes('water') || lower.includes('clean') || lower.includes('washroom') || lower.includes('toilet') || lower.includes('cooler')) {
+          extractedCategory = 'cat_sanitation';
+          extractedTitle = 'Sanitation maintenance required for campus facilities';
+          extractedDescription = `Sanitation concern: "${query}". Estate maintenance team dispatched for sanitization and filter replacement.`;
+          extractedLocation = 'Student Activity Centre (SAC)';
+          extractedPriority = 'Medium';
+        } else if (lower.includes('bonafide') || lower.includes('certificate') || lower.includes('fee') || lower.includes('scholarship')) {
+          extractedCategory = 'cat_admin';
+          extractedTitle = 'Administrative request delay / certificate processing issue';
+          extractedDescription = `Student grievance regarding administrative workflow: "${query}". Submitted for expedited verification.`;
+          extractedLocation = 'Administrative Block, Ground Floor';
+          extractedPriority = 'Medium';
         }
+
+        jsonOutput = {
+          category: extractedCategory,
+          title: extractedTitle,
+          description: extractedDescription,
+          location: extractedLocation,
+          priority: extractedPriority
+        };
       }
 
       // Build bot response based on Knowledge Base hit or fallback

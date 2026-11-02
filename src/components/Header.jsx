@@ -215,8 +215,8 @@ export default function Header() {
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border-transparent'
               }`}
             >
-              <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Authorities</span>
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Faculty Directory</span>
             </button>
 
             <button
@@ -460,15 +460,6 @@ export default function Header() {
             >
               <BarChart3 className="w-4 h-4" />
               SLA Analytics
-            </button>
-            <button
-              onClick={() => { setActiveTab('authorities'); setMobileNavOpen(false); }}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold ${
-                activeTab === 'authorities' ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <Building2 className="w-4 h-4 text-indigo-400" />
-              Responsible Authorities Directory
             </button>
             <button
               onClick={() => { setIsAnonymousTrackerOpen(true); setMobileNavOpen(false); }}

@@ -316,16 +316,16 @@ export default function AdminDashboardView() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Action 1: Manage Accounts */}
           <button
             onClick={() => setActiveTab('admin_add_account')}
-            className="p-4 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-purple-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-3"
+            className="p-5 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-purple-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors flex items-center justify-center">
-                <UserPlus className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors flex items-center justify-center">
+                <UserPlus className="w-5 h-5" />
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
@@ -333,62 +333,41 @@ export default function AdminDashboardView() {
               <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
                 Manage Accounts
               </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Provision authority officers & departments.
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Provision designated authority officers, assign departments, and manage credentials.
               </p>
             </div>
           </button>
 
-          {/* Action 2: Authorities Directory & Category Mapping */}
+          {/* Action 2: Student Management */}
           <button
-            onClick={() => setActiveTab('authorities')}
-            className="p-4 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-indigo-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-3"
+            onClick={() => setActiveTab('student_management')}
+            className="p-5 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-indigo-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors flex items-center justify-center">
-                <Building2 className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors flex items-center justify-center">
+                <Users className="w-5 h-5" />
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
-                Authority Directory
+                Student Management
               </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Configure MITS officials, contact info & category mapping.
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Review enrolled accounts, audit activity, manage student status, warnings, and restrictions.
               </p>
             </div>
           </button>
 
-          {/* Action 3: Student Management */}
-          <button
-            onClick={() => setActiveTab('student_management')}
-            className="p-4 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-blue-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-3"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors flex items-center justify-center">
-                <Users className="w-4 h-4" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
-                Student Directory
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Review accounts, audit activity & status.
-              </p>
-            </div>
-          </button>
-
-          {/* Action 4: Review Flags */}
+          {/* Action 3: Review Flags */}
           <button
             onClick={() => setActiveTab('admin_complaints')}
-            className="p-4 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-rose-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-3"
+            className="p-5 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-rose-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-colors flex items-center justify-center">
-                <ShieldAlert className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-colors flex items-center justify-center">
+                <ShieldAlert className="w-5 h-5" />
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
@@ -396,29 +375,29 @@ export default function AdminDashboardView() {
               <h3 className="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">
                 Review Flags
               </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Content moderation & safety reports.
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Inspect reported content, investigate privacy violations, and take proctorial action.
               </p>
             </div>
           </button>
 
-          {/* Action 5: View Analytics */}
+          {/* Action 4: View Analytics */}
           <button
             onClick={() => setActiveTab('analytics')}
-            className="p-4 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-emerald-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-3"
+            className="p-5 rounded-xl bg-[#0b1424] hover:bg-[#0e1a30] border border-slate-800 hover:border-blue-500/40 transition-all text-left group cursor-pointer flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors flex items-center justify-center">
-                <BarChart3 className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors flex items-center justify-center">
+                <BarChart3 className="w-5 h-5" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
-                SLA Analytics
+              <h3 className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
+                View Analytics
               </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Turnaround metrics & export reports.
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Inspect departmental turnaround SLA metrics, campus hotspot clusters, and export reports.
               </p>
             </div>
           </button>

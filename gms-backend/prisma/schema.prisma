@@ -11,19 +11,21 @@ generator client {
 // 1. USERS
 // ─────────────────────────────────────────────────────────────────────────────
 model User {
-  id             String    @id @default(cuid())
-  name           String
-  email          String    @unique
-  password_hash  String
-  role           String    @default("student") // "student", "authority", "admin"
-  department     String?
-  enrollment_no  String?
-  hostel         String?
-  room_no        String?
-  avatar         String?
-  status         String    @default("active")  // "active", "warned", "blocked"
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  name                  String
+  email                 String    @unique
+  password_hash         String
+  role                  String    @default("student") // "student", "authority", "admin", "faculty"
+  department            String?
+  enrollment_no         String?
+  hostel                String?
+  room_no               String?
+  avatar                String?
+  status                String    @default("active")  // "active", "warned", "blocked"
+  password_reset_token  String?
+  password_reset_expiry DateTime?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
 
   // Relationships
   authority_profile       Authority?
@@ -42,30 +44,50 @@ model User {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. AUTHORITIES (MITS Responsible Authorities Directory)
+// 2. AUTHORITIES (Faculty & Institutional Authorities Directory)
 // ─────────────────────────────────────────────────────────────────────────────
 model Authority {
-  id               String      @id @default(cuid())
-  user_id          String?     @unique
-  user             User?       @relation(fields: [user_id], references: [id], onDelete: SetNull)
-  name             String      @default("MITS Authority")
-  designation      String?
-  responsibilities String?     @db.Text
+  id               String   @id @default(cuid())
+  user_id          String?  @unique
+  user             User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  name             String   @default("MITS Authority")
   department       String
-  contact_number   String?     // STRICTLY CONFIDENTIAL - Never exposed to students
-  email            String?
-  status           String      @default("active") // "active", "inactive"
-  section          String?     @default("college") // "hostel", "mess", "college", "academic", "administrative"
-  created_at       DateTime    @default(now())
-  updated_at       DateTime    @updatedAt
+  designation      String?
+  responsibilities String?  @db.Text // Assigned responsibilities, e.g. "Chairperson Women Guidance..."
+  contact_number   String?  // Confidential contact number, restricted to administrators
+  email            String?  // Internal routing email, NEVER exposed publicly or to students
+  section          String?  @default("college") // "hostel", "mess", "college", "academic", "central"
+  status           String   @default("active")
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   // Relationships
   assigned_grievances Grievance[]
   categories          Category[]
 
-  @@index([status])
   @@index([department])
+  @@index([status])
   @@map("authorities")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2B. AUDIT LOGS (Tracks administrative updates to faculty, routing, and system)
+// ─────────────────────────────────────────────────────────────────────────────
+model AuditLog {
+  id          String   @id @default(cuid())
+  user_id     String?
+  user        User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  action      String   // e.g. "UPDATE_FACULTY", "REASSIGN_CATEGORY", "UPDATE_RESPONSIBILITIES"
+  entity_type String   // "authority", "grievance", "category", "user"
+  entity_id   String?
+  details     Json?
+  ip_address  String?
+  created_at  DateTime @default(now())
+
+  @@index([action])
+  @@index([entity_type])
+  @@index([created_at])
+  @@map("audit_logs")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -102,6 +124,8 @@ model Grievance {
   status                String     @default("Submitted")
   location              String?    @default("MITS Campus")
   is_anonymous          Boolean    @default(false)
+  is_demo               Boolean    @default(false) // Distinguishes dataset / demo sample records
+  dataset_tag           String?    // Tag for imported demo batches (e.g. "mits_dataset_v1")
   tracking_token        String?    @unique // e.g. "TRK-4102-MITS"
   sla_hours             Int        @default(48)
   evidence_urls         String[]   @default([])
@@ -127,6 +151,7 @@ model Grievance {
   @@index([assigned_authority_id])
   @@index([created_at])
   @@index([ticket_number])
+  @@index([is_demo])
   @@map("grievances")
 }
 
@@ -217,24 +242,4 @@ model Flag {
   @@index([grievance_id])
   @@index([resolved])
   @@map("flags")
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 10. AUDIT LOGS (Administrative tracking & authority directory change log)
-// ─────────────────────────────────────────────────────────────────────────────
-model AuditLog {
-  id          String   @id @default(cuid())
-  user_id     String?
-  user        User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
-  action      String   // e.g. "CREATE_AUTHORITY", "UPDATE_AUTHORITY", "CATEGORY_MAPPED", "STATUS_CHANGE"
-  entity_type String   // "Authority", "Category", "Grievance", "User"
-  entity_id   String?
-  details     Json?    // Context metadata / diff
-  ip_address  String?
-  created_at  DateTime @default(now())
-
-  @@index([action])
-  @@index([entity_type])
-  @@index([created_at])
-  @@map("audit_logs")
 }

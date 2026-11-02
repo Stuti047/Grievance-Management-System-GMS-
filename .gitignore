@@ -1,21 +1,3 @@
-# Dependencies
-node_modules
-*/node_modules
-gms-backend/node_modules
-
-# Build artifacts
-dist
-dist-ssr
-build
-
-# Environment variables & secrets (CRITICAL)
-.env
-.env.*
-!.env.example
-gms-backend/.env
-gms-backend/.env.*
-!gms-backend/.env.example
-
 # Logs
 logs
 *.log
@@ -23,23 +5,34 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# System & OS
-.DS_Store
-Thumbs.db
+# Dependencies & Build
+node_modules
+dist
+dist-ssr
+*.local
 
-# IDE & Editor
+# Environment variables & secrets (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Backend specific ignores
+gms-backend/node_modules
+gms-backend/.env
+gms-backend/.env.*
+!gms-backend/.env.example
+
+# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-
-# Testing & temporary
-coverage
-.nyc_output
-scratch
-tmp

@@ -195,34 +195,6 @@ export default function DashboardView() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          INSTITUTIONAL AUTHORITIES BANNER
-          ───────────────────────────────────────────────────────────── */}
-      <div className="bg-[#0b1424] border border-slate-800 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-white">MITS Responsible Authorities Directory</h4>
-              <span className="font-accent text-indigo-400 text-sm font-semibold">33 Redressing Officers</span>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Contact designations, grievance committee in-charges, and departmental SLA assignments.
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setActiveTab('authorities')}
-          className="px-3.5 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-        >
-          <span>Browse Directory</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────────
           3. STUDENT BORDERED BANNER: MY RECENT GRIEVANCES
           ───────────────────────────────────────────────────────────── */}
       {currentUser?.role === 'student' && myComplaints.length > 0 && (
