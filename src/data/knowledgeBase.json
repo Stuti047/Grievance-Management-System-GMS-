@@ -1,0 +1,191 @@
+{
+  "_readme": "Knowledge base for the Ask MRCMS assistant. Entries with verified=false contain MITS-specific details that are PLACEHOLDERS and must be confirmed and filled in by the college before launch. Never let the assistant state unverified MITS-specific facts as certain.",
+  "fallback": "I'm not sure about that one. You can file it under 'Other' in MRCMS so the grievance cell can look at it, or contact the concerned office directly.",
+  "safetyNotice": "I give general guidance. For official decisions, please contact the concerned office.",
+  "entries": [
+    {
+      "id": "kb-how-to-file",
+      "topic": "How to file a complaint",
+      "keywords": ["file", "complaint", "submit", "raise", "report", "grievance", "where", "how"],
+      "question": "How do I file a complaint?",
+      "answer": "Log in, click New Complaint, choose the category (Canteen, Hostel Mess, Administration, Events, Clubs & Societies or Other), describe what happened, add photos if you have any, and submit. You get a tracking code so you can follow the status. You can also turn on 'Submit anonymously'.",
+      "suggestedCategory": null,
+      "action": { "label": "Start a complaint", "route": "/app/complaints/new" },
+      "related": ["kb-anonymous", "kb-tracking", "kb-which-category"],
+      "verified": true
+    },
+    {
+      "id": "kb-which-category",
+      "topic": "Which category to pick",
+      "keywords": ["category", "which", "who handles", "where to complain", "department", "authority"],
+      "question": "Which category should I choose?",
+      "answer": "Canteen: food, hygiene or pricing at the canteen. Hostel Mess: food and cleanliness in hostel mess. Administration: certificates, ID cards, fee receipts, scholarships, TC/migration. Events: organisation, sound, seating, logistics of an event. Clubs & Societies: club funds, membership, club events. Other: anything else. If you pick the wrong one, the admin can move it.",
+      "suggestedCategory": null,
+      "related": ["kb-how-to-file"],
+      "verified": true
+    },
+    {
+      "id": "kb-anonymous",
+      "topic": "Anonymous complaints",
+      "keywords": ["anonymous", "anonymously", "identity", "hide", "name", "afraid", "scared", "privacy", "confidential"],
+      "question": "How does anonymous reporting work?",
+      "answer": "If you tick 'Submit anonymously', your name, roll number and email are not attached to the complaint, and authorities only see 'Anonymous student'. You get a tracking code at the end. Keep it safe: it is the only way to check the status and reply. Anonymous complaints can still be handled, but give enough detail (place, date) so the authority can act.",
+      "related": ["kb-tracking", "kb-how-to-file"],
+      "verified": true
+    },
+    {
+      "id": "kb-tracking",
+      "topic": "Tracking status",
+      "keywords": ["track", "status", "progress", "update", "code", "check"],
+      "question": "How do I track my complaint?",
+      "answer": "Open My Complaints to see all your named complaints. For an anonymous complaint, use Track a Complaint and enter your tracking code (looks like MRC-XXXX-XXXX). Statuses: Submitted, Under Review, In Progress, Escalated, Resolved, Closed, Rejected, Reopened.",
+      "action": { "label": "Track a complaint", "route": "/app/track" },
+      "related": ["kb-reopen", "kb-escalation"],
+      "verified": true
+    },
+    {
+      "id": "kb-reopen",
+      "topic": "Reopening a complaint",
+      "keywords": ["reopen", "not resolved", "unsatisfied", "still", "again", "not fixed"],
+      "question": "The issue is not actually fixed. What can I do?",
+      "answer": "If your complaint is marked Resolved but the problem is still there, use Reopen on the complaint within 7 days of the resolution and say what is still wrong. It goes back to review. If it keeps happening, an admin can escalate it.",
+      "related": ["kb-escalation"],
+      "verified": true
+    },
+    {
+      "id": "kb-escalation",
+      "topic": "Escalation and delays",
+      "keywords": ["escalate", "delay", "no response", "ignored", "pending", "long time", "slow"],
+      "question": "Nobody has responded to my complaint.",
+      "answer": "Complaints with no response for 3 days, or still open after 7 days, are automatically escalated to the grievance cell and marked overdue. You can also add a reply on your complaint to ask for an update.",
+      "related": ["kb-tracking", "kb-reopen"],
+      "verified": true
+    },
+    {
+      "id": "kb-mess",
+      "topic": "Hostel mess and canteen food",
+      "keywords": ["mess", "food", "canteen", "stale", "hygiene", "dirty", "taste", "quality", "dinner", "lunch", "breakfast", "sick", "food poisoning"],
+      "question": "Where do I complain about mess or canteen food?",
+      "answer": "Use New Complaint and choose Hostel Mess (for hostel mess) or Canteen (for the college canteen). Add the date, meal and a photo if possible. If people have fallen sick, mark the priority High or Urgent and also inform the warden or a doctor immediately.",
+      "suggestedCategory": "cat-mess",
+      "action": { "label": "Complain about food", "route": "/app/complaints/new?category=cat-mess" },
+      "related": ["kb-anonymous"],
+      "verified": true
+    },
+    {
+      "id": "kb-bonafide",
+      "topic": "Bonafide certificate delay",
+      "keywords": ["bonafide", "certificate", "delay", "pending", "scholarship form", "letter"],
+      "question": "My bonafide certificate is delayed.",
+      "answer": "Bonafide certificates are issued by the administration office. First check that your application and any fee or form requirements are complete. If it is still pending after the usual time, file a complaint under Administration > Bonafide certificate with your application date. [MITS-specific: office location, usual processing time and required documents to be confirmed by the college.]",
+      "suggestedCategory": "cat-admin",
+      "action": { "label": "File under Administration", "route": "/app/complaints/new?category=cat-admin" },
+      "related": ["kb-escalation"],
+      "verified": false
+    },
+    {
+      "id": "kb-id-card",
+      "topic": "ID card issues",
+      "keywords": ["id card", "identity card", "lost id", "reprint", "duplicate id"],
+      "question": "I lost my ID card or it has errors.",
+      "answer": "ID cards are handled by the administration office. Usually you need to submit a request for a duplicate or correction, and a fee may apply. File a complaint under Administration > ID card if your request is stuck. [MITS-specific: process, fee and office to be confirmed.]",
+      "suggestedCategory": "cat-admin",
+      "related": ["kb-escalation"],
+      "verified": false
+    },
+    {
+      "id": "kb-scholarship",
+      "topic": "Scholarship problems",
+      "keywords": ["scholarship", "stipend", "fee waiver", "portal", "verification"],
+      "question": "My scholarship is stuck.",
+      "answer": "Scholarship processing involves the college office and the scholarship portal of the awarding body. Check that your documents are verified on the portal, then note the application number and the date you submitted. File a complaint under Administration > Scholarship with these details so the office can follow up. [MITS-specific: scholarship cell contact to be confirmed.]",
+      "suggestedCategory": "cat-admin",
+      "related": ["kb-escalation"],
+      "verified": false
+    },
+    {
+      "id": "kb-fee-receipt",
+      "topic": "Fee receipt problems",
+      "keywords": ["fee", "receipt", "payment", "paid", "challan", "accounts"],
+      "question": "My fee payment is not showing or I did not get a receipt.",
+      "answer": "Keep the payment proof (transaction ID or bank slip). Contact the accounts section with it. If there is no resolution, file a complaint under Administration > Fee receipt and attach the proof. [MITS-specific: accounts office details to be confirmed.]",
+      "suggestedCategory": "cat-admin",
+      "related": ["kb-escalation"],
+      "verified": false
+    },
+    {
+      "id": "kb-events",
+      "topic": "Events feedback",
+      "keywords": ["event", "fest", "workshop", "seminar", "organised", "sound", "seating", "coordinator", "feedback"],
+      "question": "I want to give feedback or complain about an event.",
+      "answer": "For a quick opinion, leave a star rating in Reviews. For a problem that needs action (safety, money, poor arrangements), file a complaint under Events with the event name and date.",
+      "suggestedCategory": "cat-events",
+      "action": { "label": "Complain about an event", "route": "/app/complaints/new?category=cat-events" },
+      "related": ["kb-review-vs-complaint"],
+      "verified": true
+    },
+    {
+      "id": "kb-clubs",
+      "topic": "Clubs and societies",
+      "keywords": ["club", "society", "scrs", "membership", "funds", "money", "treasurer", "expense"],
+      "question": "I have a concern about a club or society.",
+      "answer": "File a complaint under Clubs & Societies. Common cases are unclear use of collected funds, membership or selection issues, and poorly run club events. Mention the club name and what you need (for example an expense summary).",
+      "suggestedCategory": "cat-clubs",
+      "related": ["kb-anonymous"],
+      "verified": true
+    },
+    {
+      "id": "kb-review-vs-complaint",
+      "topic": "Review or complaint",
+      "keywords": ["review", "rating", "stars", "difference", "feedback"],
+      "question": "What is the difference between a review and a complaint?",
+      "answer": "A review is a quick star rating with an optional comment, used to show overall opinion about the canteen, an event or a club. A complaint is a formal case that goes to an authority and is tracked until it is resolved.",
+      "related": ["kb-how-to-file"],
+      "verified": true
+    },
+    {
+      "id": "kb-ragging-harassment",
+      "topic": "Ragging and harassment (sensitive)",
+      "keywords": ["ragging", "harass", "harassment", "bully", "bullying", "threat", "abuse", "assault", "molest", "unsafe", "touch", "stalk", "eve teasing", "discriminat"],
+      "question": "I am being ragged, harassed or threatened.",
+      "answer": "I'm really sorry you're dealing with this. You deserve to be safe, and it is not your fault. If you are in immediate danger, contact campus security or call 112 right away. In India, ragging can be reported to the college anti-ragging committee and to the UGC Anti-Ragging Helpline, 1800-180-5522 (please verify the number before relying on it). Sexual harassment can be reported to the college Internal Complaints Committee. You can also file a complaint here, anonymously if you prefer, and tell a trusted friend, family member or faculty member. [MITS-specific: committee names, contacts and security number to be added by the college.]",
+      "suggestedCategory": "cat-other",
+      "priority": "urgent",
+      "action": { "label": "File a complaint (anonymous option available)", "route": "/app/complaints/new?priority=urgent" },
+      "related": ["kb-anonymous"],
+      "verified": false,
+      "sensitive": true,
+      "hardcoded": true
+    },
+    {
+      "id": "kb-wellbeing",
+      "topic": "Distress and wellbeing (sensitive)",
+      "keywords": ["depressed", "hopeless", "suicide", "self harm", "end my life", "can't go on", "panic", "very stressed"],
+      "question": "I'm feeling very low or unsafe.",
+      "answer": "I'm sorry you're going through this. You don't have to handle it alone. Please talk to someone you trust today, such as a friend, family member or faculty member. If you might hurt yourself or are in immediate danger, call 112 now. In India, Tele-MANAS offers free 24x7 mental health support at 14416 (please verify the number before relying on it). [MITS-specific: college counsellor details to be added.]",
+      "priority": "urgent",
+      "related": [],
+      "verified": false,
+      "sensitive": true,
+      "hardcoded": true
+    },
+    {
+      "id": "kb-contacts",
+      "topic": "Office contacts",
+      "keywords": ["contact", "phone", "email", "office", "timing", "hours", "dean", "registrar", "warden"],
+      "question": "Who do I contact and when is the office open?",
+      "answer": "[PLACEHOLDER: the college must fill in office locations, timings, emails and phone numbers for the grievance cell, administration office, accounts, hostel wardens, canteen and anti-ragging/ICC committees.] Until then, please file a complaint in MRCMS and the right authority will reach out.",
+      "related": ["kb-how-to-file"],
+      "verified": false
+    },
+    {
+      "id": "kb-about-assistant",
+      "topic": "About the assistant",
+      "keywords": ["who are you", "what can you do", "help", "assistant", "bot"],
+      "question": "What can you help me with?",
+      "answer": "I can explain where and how to file complaints, which category to choose, how anonymous reporting and tracking work, and general guidance on common college processes like bonafide, ID card, scholarship and fee receipts. I can also help you write a complaint and open the form with it filled in.",
+      "related": ["kb-how-to-file", "kb-which-category", "kb-anonymous"],
+      "verified": true
+    }
+  ]
+}

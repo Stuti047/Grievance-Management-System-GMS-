@@ -1,0 +1,240 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. USERS
+// ─────────────────────────────────────────────────────────────────────────────
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  password_hash  String
+  role           String    @default("student") // "student", "authority", "admin"
+  department     String?
+  enrollment_no  String?
+  hostel         String?
+  room_no        String?
+  avatar         String?
+  status         String    @default("active")  // "active", "warned", "blocked"
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  // Relationships
+  authority_profile       Authority?
+  submitted_grievances    Grievance[]     @relation("GrievanceAuthor")
+  status_history_updates  StatusHistory[] @relation("StatusUpdater")
+  comments                Comment[]
+  upvotes                 Upvote[]
+  feedbacks               Feedback[]
+  flags                   Flag[]
+  audit_logs              AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. AUTHORITIES (MITS Responsible Authorities Directory)
+// ─────────────────────────────────────────────────────────────────────────────
+model Authority {
+  id               String      @id @default(cuid())
+  user_id          String?     @unique
+  user             User?       @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  name             String      @default("MITS Authority")
+  designation      String?
+  responsibilities String?     @db.Text
+  department       String
+  contact_number   String?     // STRICTLY CONFIDENTIAL - Never exposed to students
+  email            String?
+  status           String      @default("active") // "active", "inactive"
+  section          String?     @default("college") // "hostel", "mess", "college", "academic", "administrative"
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+
+  // Relationships
+  assigned_grievances Grievance[]
+  categories          Category[]
+
+  @@index([status])
+  @@index([department])
+  @@map("authorities")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. CATEGORIES
+// ─────────────────────────────────────────────────────────────────────────────
+model Category {
+  id           String     @id @default(cuid())
+  name         String     @unique
+  description  String?
+  section      String?    @default("college") // "hostel", "mess", "college"
+  sla_hours    Int        @default(48)
+  authority_id String?
+  authority    Authority? @relation(fields: [authority_id], references: [id], onDelete: SetNull)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+
+  // Relationships
+  grievances Grievance[]
+
+  @@map("categories")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. GRIEVANCES
+// ─────────────────────────────────────────────────────────────────────────────
+model Grievance {
+  id                    String     @id @default(cuid())
+  ticket_number         String     @unique // e.g. "GRV-2026-00101"
+  title                 String
+  description           String     @db.Text
+  category_id           String
+  category              Category   @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  priority              String     @default("Medium") // "Low", "Medium", "High", "Urgent"
+  status                String     @default("Submitted")
+  location              String?    @default("MITS Campus")
+  is_anonymous          Boolean    @default(false)
+  tracking_token        String?    @unique // e.g. "TRK-4102-MITS"
+  sla_hours             Int        @default(48)
+  evidence_urls         String[]   @default([])
+  submitted_by          String
+  author                User       @relation("GrievanceAuthor", fields: [submitted_by], references: [id], onDelete: Restrict)
+  assigned_authority_id String?
+  assigned_authority    Authority? @relation(fields: [assigned_authority_id], references: [id], onDelete: SetNull)
+  resolved_at           DateTime?
+  is_deleted            Boolean    @default(false)
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+
+  // Relationships
+  history   StatusHistory[]
+  comments  Comment[]
+  upvotes   Upvote[]
+  feedback  Feedback?
+  flags     Flag[]
+
+  @@index([category_id])
+  @@index([status])
+  @@index([submitted_by])
+  @@index([assigned_authority_id])
+  @@index([created_at])
+  @@index([ticket_number])
+  @@map("grievances")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. STATUS HISTORY (Append-only audit log)
+// ─────────────────────────────────────────────────────────────────────────────
+model StatusHistory {
+  id              String    @id @default(cuid())
+  grievance_id    String
+  grievance       Grievance @relation(fields: [grievance_id], references: [id], onDelete: Cascade)
+  previous_status String?
+  new_status      String
+  updated_by      String
+  updater         User      @relation("StatusUpdater", fields: [updated_by], references: [id], onDelete: Restrict)
+  remarks         String?   @db.Text
+  created_at      DateTime  @default(now())
+
+  @@index([grievance_id])
+  @@map("status_history")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. COMMENTS
+// ─────────────────────────────────────────────────────────────────────────────
+model Comment {
+  id           String    @id @default(cuid())
+  grievance_id String
+  grievance    Grievance @relation(fields: [grievance_id], references: [id], onDelete: Cascade)
+  user_id      String
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  comment_text String    @db.Text
+  is_internal  Boolean   @default(false)
+  is_anonymous Boolean   @default(false)
+  created_at   DateTime  @default(now())
+
+  @@index([grievance_id])
+  @@map("comments")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. UPVOTES (Unique per grievance and user)
+// ─────────────────────────────────────────────────────────────────────────────
+model Upvote {
+  id           String    @id @default(cuid())
+  grievance_id String
+  grievance    Grievance @relation(fields: [grievance_id], references: [id], onDelete: Cascade)
+  user_id      String
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at   DateTime  @default(now())
+
+  @@unique([grievance_id, user_id])
+  @@index([grievance_id])
+  @@map("upvotes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. FEEDBACK (Post-resolution confirmation from student)
+// ─────────────────────────────────────────────────────────────────────────────
+model Feedback {
+  id            String    @id @default(cuid())
+  grievance_id  String    @unique
+  grievance     Grievance @relation(fields: [grievance_id], references: [id], onDelete: Cascade)
+  user_id       String
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  rating        Int?      @default(5)
+  resolved_ok   Boolean   @default(true)
+  feedback_text String?   @db.Text
+  created_at    DateTime  @default(now())
+
+  @@map("feedback")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. FLAGS (Report inappropriate/sensitive content)
+// ─────────────────────────────────────────────────────────────────────────────
+model Flag {
+  id           String    @id @default(cuid())
+  grievance_id String
+  grievance    Grievance @relation(fields: [grievance_id], references: [id], onDelete: Cascade)
+  reported_by  String
+  reporter     User      @relation(fields: [reported_by], references: [id], onDelete: Restrict)
+  reason       String    @db.Text
+  status       String    @default("pending") // "pending", "resolved", "dismissed"
+  resolved     Boolean   @default(false)
+  created_at   DateTime  @default(now())
+
+  @@unique([grievance_id, reported_by])
+  @@index([grievance_id])
+  @@index([resolved])
+  @@map("flags")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. AUDIT LOGS (Administrative tracking & authority directory change log)
+// ─────────────────────────────────────────────────────────────────────────────
+model AuditLog {
+  id          String   @id @default(cuid())
+  user_id     String?
+  user        User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  action      String   // e.g. "CREATE_AUTHORITY", "UPDATE_AUTHORITY", "CATEGORY_MAPPED", "STATUS_CHANGE"
+  entity_type String   // "Authority", "Category", "Grievance", "User"
+  entity_id   String?
+  details     Json?    // Context metadata / diff
+  ip_address  String?
+  created_at  DateTime @default(now())
+
+  @@index([action])
+  @@index([entity_type])
+  @@index([created_at])
+  @@map("audit_logs")
+}

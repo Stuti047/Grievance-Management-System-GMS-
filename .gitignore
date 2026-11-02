@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+*/node_modules
+gms-backend/node_modules
+
+# Build artifacts
+dist
+dist-ssr
+build
+
+# Environment variables & secrets (CRITICAL)
+.env
+.env.*
+!.env.example
+gms-backend/.env
+gms-backend/.env.*
+!gms-backend/.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System & OS
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing & temporary
+coverage
+.nyc_output
+scratch
+tmp
