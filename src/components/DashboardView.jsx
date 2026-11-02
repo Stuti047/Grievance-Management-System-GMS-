@@ -302,11 +302,18 @@ export default function DashboardView() {
             </div>
           ) : (
             visibleComplaints.map(ticket => {
-              const hasUpvoted = currentUser && ticket.upvotes.includes(currentUser.id);
+              const hasUpvoted = currentUser && (
+                (Array.isArray(ticket.upvotes) && ticket.upvotes.includes(currentUser.id)) ||
+                ticket.is_supported ||
+                false
+              );
+              const upvoteCount = Array.isArray(ticket.upvotes)
+                ? ticket.upvotes.length
+                : (typeof ticket.supports_count === 'number' ? ticket.supports_count : 0);
 
               return (
                 <div
-                  key={ticket.ticketId}
+                  key={ticket.ticketId || ticket.id}
                   className="bg-[#0b1424] hover:bg-[#0e1a30] rounded-xl border border-slate-800 hover:border-blue-500/40 p-4 sm:p-5 transition-all duration-150 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
                 >
                   <div 
@@ -315,15 +322,15 @@ export default function DashboardView() {
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-mono text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
-                        #{ticket.ticketId}
+                        #{ticket.ticketId || ticket.id}
                       </span>
                       <span className="text-xs text-slate-400 font-semibold">
-                        {ticket.category}
+                        {ticket.category || ticket.category_name || 'General'}
                       </span>
                       <span className={`text-[11px] px-2 py-0.2 rounded border font-semibold ${priorityStyles[ticket.priority] || priorityStyles.Medium}`}>
-                        {ticket.priority} Priority
+                        {ticket.priority || 'Medium'} Priority
                       </span>
-                      {ticket.isAnonymous && (
+                      {(ticket.isAnonymous || ticket.is_anonymous) && (
                         <span className="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/30">
                           Anonymous
                         </span>
@@ -341,16 +348,18 @@ export default function DashboardView() {
                     <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 pt-1">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3 h-3 text-slate-400" />
-                        <strong className="text-slate-300 font-normal">{ticket.locationDetails.block}</strong>
+                        <strong className="text-slate-300 font-normal">{ticket.locationDetails?.block || ticket.location || 'MITS Campus'}</strong>
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 text-slate-400" />
-                        <strong className="text-slate-300 font-normal">{new Date(ticket.createdAt).toLocaleDateString('en-IN')}</strong>
+                        <strong className="text-slate-300 font-normal">
+                          {ticket.createdAt || ticket.created_at ? new Date(ticket.createdAt || ticket.created_at).toLocaleDateString('en-IN') : 'Recent'}
+                        </strong>
                       </span>
                       {ticket.assignedTo && (
                         <span className="flex items-center gap-1">
                           <UserCheck className="w-3 h-3 text-indigo-400" />
-                          <span>Assigned: <strong className="text-indigo-300 font-medium">{ticket.assignedTo.name}</strong></span>
+                          <span>Assigned: <strong className="text-indigo-300 font-medium">{ticket.assignedTo.name || ticket.assignedTo}</strong></span>
                         </span>
                       )}
                     </div>
@@ -359,11 +368,11 @@ export default function DashboardView() {
                   {/* Actions & Upvote Box */}
                   <div className="flex items-center gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800 justify-between md:justify-end">
                     <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${statusStyles[ticket.status] || statusStyles.Submitted}`}>
-                      {ticket.status}
+                      {ticket.status || 'Submitted'}
                     </span>
 
                     <button
-                      onClick={() => upvoteComplaint(ticket.ticketId)}
+                      onClick={() => upvoteComplaint(ticket.ticketId || ticket.id)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
                         hasUpvoted
                           ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
@@ -372,7 +381,7 @@ export default function DashboardView() {
                       title="Support this grievance"
                     >
                       <ThumbsUp className="w-3.5 h-3.5" />
-                      <span>{ticket.upvotes.length}</span>
+                      <span>{upvoteCount}</span>
                     </button>
 
                     <button

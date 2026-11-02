@@ -58,6 +58,18 @@ function normalizeGrievance(g) {
   const ticketCode = g.ticket_number || g.grievance_code || g.ticketId || g.id;
   const catName = g.category_name || g.category || 'General';
 
+  // Extract upvotes as an array of user IDs
+  let upvotesArr = [];
+  if (Array.isArray(g.upvotes)) {
+    upvotesArr = g.upvotes.map(u => typeof u === 'string' ? u : (u.user_id || u.id)).filter(Boolean);
+  }
+
+  const supportsCount = typeof g.supports_count === 'number'
+    ? g.supports_count
+    : (upvotesArr.length || (g.is_supported ? 1 : 0));
+
+  const assignedName = g.assigned_to_name || g.assignedTo?.name || g.sub_authority_name || null;
+
   return {
     ...g,
     ticketId: ticketCode,
@@ -68,19 +80,29 @@ function normalizeGrievance(g) {
     locationDetails: { block: g.location || 'MITS Campus' },
     location: g.location || 'MITS Campus',
     submittedBy: {
-      id: g.author_id,
+      id: g.author_id || g.submitted_by,
       name: g.author_name || 'Student',
       email: g.author_email,
       department: g.author_department,
       enrollmentNo: g.author_enrollment
     },
+    assignedTo: assignedName ? {
+      name: assignedName,
+      designation: g.assigned_to_designation || g.designation || 'Authority',
+      department: g.assigned_to_department || g.department || 'MITS'
+    } : null,
     // Ensure comments and history arrays exist
     comments: (g.comments || []).map(c => ({
       ...c,
-      author: { name: c.author_name, role: c.author_role }
+      author: { name: c.author_name || c.author?.name || 'User', role: c.author_role || c.author?.role || 'user' }
     })),
     history: g.history || [],
-    supports_count: typeof g.supports_count === 'number' ? g.supports_count : 0
+    upvotes: upvotesArr,
+    supports_count: supportsCount,
+    is_supported: Boolean(g.is_supported),
+    createdAt: g.created_at || g.createdAt || new Date().toISOString(),
+    updatedAt: g.updated_at || g.updatedAt || new Date().toISOString(),
+    isAnonymous: Boolean(g.is_anonymous || g.isAnonymous)
   };
 }
 

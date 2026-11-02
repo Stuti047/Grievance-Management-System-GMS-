@@ -74,6 +74,24 @@ const server = app.listen(PORT, () => {
   console.log(`=======================================================`);
 });
 
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use.`);
+    console.error(`👉 Run 'lsof -ti :${PORT} | xargs kill -9' to free port ${PORT}.`);
+  } else {
+    console.error('❌ Server startup error:', err);
+  }
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Uncaught Exception:', err);
+});
+
 // Graceful Shutdown
 async function gracefulShutdown(signal) {
   console.log(`\nReceived ${signal}. Shutting down gracefully...`);

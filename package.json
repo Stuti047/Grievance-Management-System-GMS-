@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "npm --prefix gms-backend start",
+    "server:dev": "npm --prefix gms-backend run dev"
   },
   "dependencies": {
     "axios": "^1.20.0",
