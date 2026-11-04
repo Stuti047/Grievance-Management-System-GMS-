@@ -36,3 +36,4 @@ gms-backend/.env.*
 *.njsproj
 *.sln
 *.sw?
+project.zip
