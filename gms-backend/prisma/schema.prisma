@@ -55,15 +55,18 @@ model Authority {
   designation      String?
   responsibilities String?  @db.Text // Assigned responsibilities, e.g. "Chairperson Women Guidance..."
   contact_number   String?  // Confidential contact number, restricted to administrators
-  email            String?  // Internal routing email, NEVER exposed publicly or to students
+  email            String?  // Primary contact email
+  official_emails  String[] @default([]) // Multiple official emails
+  category_group   String   @default("academic_student") // "leadership", "academic_student", "department_head"
   section          String?  @default("college") // "hostel", "mess", "college", "academic", "central"
   status           String   @default("active")
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
   // Relationships
-  assigned_grievances Grievance[]
-  categories          Category[]
+  assigned_grievances   Grievance[]
+  categories            Category[]  @relation("CategoryPrimaryAuthority")
+  escalated_categories  Category[]  @relation("CategoryEscalationAuthority")
 
   @@index([department])
   @@index([status])
@@ -94,15 +97,20 @@ model AuditLog {
 // 3. CATEGORIES
 // ─────────────────────────────────────────────────────────────────────────────
 model Category {
-  id           String     @id @default(cuid())
-  name         String     @unique
-  description  String?
-  section      String?    @default("college") // "hostel", "mess", "college"
-  sla_hours    Int        @default(48)
-  authority_id String?
-  authority    Authority? @relation(fields: [authority_id], references: [id], onDelete: SetNull)
-  created_at   DateTime   @default(now())
-  updated_at   DateTime   @updatedAt
+  id                      String     @id @default(cuid())
+  name                    String     @unique
+  description             String?
+  section                 String?    @default("college") // "hostel", "mess", "college"
+  sla_hours               Int        @default(48)
+  department              String?
+  responsible_designation String?
+  authority_id            String?
+  authority               Authority? @relation("CategoryPrimaryAuthority", fields: [authority_id], references: [id], onDelete: SetNull)
+  escalation_authority_id String?
+  escalation_authority    Authority? @relation("CategoryEscalationAuthority", fields: [escalation_authority_id], references: [id], onDelete: SetNull)
+  is_active               Boolean    @default(true)
+  created_at              DateTime   @default(now())
+  updated_at              DateTime   @updatedAt
 
   // Relationships
   grievances Grievance[]

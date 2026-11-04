@@ -70,7 +70,7 @@ export default function Header() {
             <div className="leading-tight">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] sm:text-[11px] text-amber-400 font-semibold tracking-wide">
-                  माधव प्रौद्योगिकी एवं विज्ञान संस्थान, ग्वालियर
+                  Estd. 1957 • Autonomous Institute
                 </span>
                 <span className="hidden md:inline-block px-1.5 py-0.2 text-[9px] uppercase font-bold bg-amber-400/10 text-amber-300 border border-amber-400/25 rounded">
                   Deemed to be University

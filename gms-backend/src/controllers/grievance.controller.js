@@ -236,7 +236,7 @@ export async function getMine(req, res, next) {
 export async function updateStatus(req, res, next) {
   try {
     const { id } = req.params;
-    const { status: new_status, note = '', remarks = '' } = req.body;
+    const { status: new_status, note = '', remarks = '', assigned_authority_id } = req.body;
     const finalNote = note || remarks || '';
     const user = req.user;
 
@@ -245,7 +245,8 @@ export async function updateStatus(req, res, next) {
     }
 
     const grievance = await prisma.grievance.findUnique({
-      where: { id }
+      where: { id },
+      include: { category: true }
     });
 
     if (!grievance) {
@@ -259,8 +260,8 @@ export async function updateStatus(req, res, next) {
       }
     }
 
-    // FSM Transition verification
-    if (!isValidTransition(grievance.status, new_status)) {
+    // FSM Transition verification (Admin can override when exceptional administrative intervention is required)
+    if (user.role !== 'admin' && !isValidTransition(grievance.status, new_status)) {
       return res.status(400).json({
         error: `Invalid transition from "${grievance.status}" to "${new_status}". State progression must follow official protocol.`
       });
@@ -271,6 +272,15 @@ export async function updateStatus(req, res, next) {
     };
     if (new_status === COMPLAINT_STATUSES.RESOLVED) {
       updateData.resolved_at = new Date();
+    }
+
+    // Support reassignment and escalation
+    if (assigned_authority_id && user.role === 'admin') {
+      updateData.assigned_authority_id = assigned_authority_id;
+    } else if (new_status === COMPLAINT_STATUSES.ESCALATED) {
+      if (grievance.category?.escalation_authority_id) {
+        updateData.assigned_authority_id = grievance.category.escalation_authority_id;
+      }
     }
 
     await prisma.$transaction(async (tx) => {

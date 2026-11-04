@@ -11,16 +11,26 @@ export async function listAuthorities(req, res, next) {
   try {
     const viewerRole = req.user?.role || 'public';
     const isAdmin = viewerRole === 'admin';
+    const showAll = isAdmin || req.query.include_inactive === 'true' || req.query.all === 'true';
+
+    const where = showAll ? {} : { status: 'active' };
 
     const authorities = await prisma.authority.findMany({
-      where: { status: 'active' },
+      where,
       orderBy: { name: 'asc' },
       include: {
+        _count: {
+          select: {
+            assigned_grievances: true
+          }
+        },
         categories: {
           select: {
             id: true,
             name: true,
-            sla_hours: true
+            sla_hours: true,
+            department: true,
+            is_active: true
           }
         },
         user: {
@@ -28,7 +38,8 @@ export async function listAuthorities(req, res, next) {
             id: true,
             name: true,
             status: true,
-            avatar: true
+            avatar: true,
+            email: true
           }
         }
       }
@@ -47,6 +58,10 @@ export async function listAuthorities(req, res, next) {
           designation: a.designation || 'Faculty Member',
           responsibilities: a.responsibilities || 'Responsible Authority',
           assigned_responsibilities: a.responsibilities || 'Responsible Authority',
+          official_emails: a.official_emails && a.official_emails.length > 0 ? a.official_emails : (a.email ? [a.email] : []),
+          email: a.email || (a.official_emails && a.official_emails[0]) || null,
+          category_group: a.category_group || 'academic_student',
+          assigned_grievances_count: a._count?.assigned_grievances || 0,
           categories: (a.categories || []).map(c => c.name),
           category_objects: a.categories || [],
           section: a.section || 'college',
@@ -59,6 +74,7 @@ export async function listAuthorities(req, res, next) {
           base.confidential_phone = a.contact_number || null;
           base.created_at = a.created_at;
           base.updated_at = a.updated_at;
+          base.user_email = a.user?.email || null;
         }
 
         return base;
@@ -85,6 +101,11 @@ export async function updateAuthority(req, res, next) {
       department,
       designation,
       contact_number,
+      official_emails,
+      email,
+      category_group,
+      status,
+      section,
       category_ids = []
     } = req.body;
 
@@ -103,6 +124,10 @@ export async function updateAuthority(req, res, next) {
       department: existing.department,
       designation: existing.designation,
       contact_number: existing.contact_number,
+      official_emails: existing.official_emails,
+      email: existing.email,
+      category_group: existing.category_group,
+      status: existing.status,
       category_ids: existing.categories.map(c => c.id)
     };
 
@@ -111,7 +136,12 @@ export async function updateAuthority(req, res, next) {
       responsibilities: responsibilities !== undefined ? responsibilities.trim() : existing.responsibilities,
       department: department !== undefined ? department.trim() : existing.department,
       designation: designation !== undefined ? designation.trim() : existing.designation,
-      contact_number: contact_number !== undefined ? contact_number.trim() : existing.contact_number
+      contact_number: contact_number !== undefined ? contact_number.trim() : existing.contact_number,
+      official_emails: Array.isArray(official_emails) ? official_emails : existing.official_emails,
+      email: email !== undefined ? (email ? email.trim() : null) : existing.email,
+      category_group: category_group !== undefined ? category_group : existing.category_group,
+      status: status !== undefined ? status : existing.status,
+      section: section !== undefined ? section : existing.section
     };
 
     // Perform atomic update and audit logging
@@ -124,7 +154,12 @@ export async function updateAuthority(req, res, next) {
           responsibilities: newValues.responsibilities,
           department: newValues.department,
           designation: newValues.designation,
-          contact_number: newValues.contact_number
+          contact_number: newValues.contact_number,
+          official_emails: newValues.official_emails,
+          email: newValues.email,
+          category_group: newValues.category_group,
+          status: newValues.status,
+          section: newValues.section
         }
       });
 
@@ -141,12 +176,10 @@ export async function updateAuthority(req, res, next) {
 
       // 3. Reassign categories if provided
       if (Array.isArray(category_ids) && category_ids.length > 0) {
-        // Disconnect old categories not in category_ids
         await tx.category.updateMany({
           where: { authority_id: id, id: { notIn: category_ids } },
           data: { authority_id: null }
         });
-        // Connect new categories
         await tx.category.updateMany({
           where: { id: { in: category_ids } },
           data: { authority_id: id }
@@ -226,32 +259,37 @@ export async function createAuthority(req, res, next) {
     const {
       name,
       email,
+      official_emails = [],
+      category_group = 'academic_student',
+      create_user_account = false,
       password = 'Authority@123',
       department,
       designation = 'Authority Officer',
       responsibilities,
       contact_number,
-      section = 'college'
+      section = 'college',
+      status = 'active'
     } = req.body;
 
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (!cleanEmail.endsWith('@mitsgwalior.in')) {
-      return res.status(400).json({ error: 'Authority accounts require an official @mitsgwalior.in email domain' });
-    }
-
-    const existing = await prisma.user.findUnique({
-      where: { email: cleanEmail }
-    });
-    if (existing) {
-      return res.status(409).json({ error: 'An account with this email already exists' });
-    }
-
     const finalDepartment = department?.trim() || 'Campus Administration';
-    const password_hash = await bcrypt.hash(password, 10);
+    const emailsList = Array.isArray(official_emails) && official_emails.length > 0 
+      ? official_emails 
+      : (email ? [email.trim()] : []);
 
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
+    let createdUser = null;
+    let userId = null;
+
+    if (create_user_account && email) {
+      const cleanEmail = email.trim().toLowerCase();
+      const existing = await prisma.user.findUnique({
+        where: { email: cleanEmail }
+      });
+      if (existing) {
+        return res.status(409).json({ error: 'A login account with this email already exists' });
+      }
+
+      const password_hash = await bcrypt.hash(password, 10);
+      createdUser = await prisma.user.create({
         data: {
           name: name.trim(),
           email: cleanEmail,
@@ -261,33 +299,46 @@ export async function createAuthority(req, res, next) {
           status: 'active'
         }
       });
+      userId = createdUser.id;
+    }
 
-      const authority = await tx.authority.create({
-        data: {
-          user_id: user.id,
-          name: name.trim(),
-          department: finalDepartment,
-          designation: designation?.trim() || 'Authority Officer',
-          responsibilities: responsibilities?.trim() || null,
-          contact_number: contact_number?.trim() || null,
-          section
+    const authority = await prisma.authority.create({
+      data: {
+        user_id: userId,
+        name: name.trim(),
+        department: finalDepartment,
+        designation: designation?.trim() || 'Authority Officer',
+        responsibilities: responsibilities?.trim() || null,
+        contact_number: contact_number?.trim() || null,
+        official_emails: emailsList,
+        email: email ? email.trim() : (emailsList[0] || null),
+        category_group,
+        section,
+        status
+      }
+    });
+
+    // Record audit log
+    await prisma.auditLog.create({
+      data: {
+        user_id: req.user?.id || null,
+        action: 'CREATE_INSTITUTIONAL_AUTHORITY',
+        entity_type: 'authority',
+        entity_id: authority.id,
+        details: {
+          name: authority.name,
+          designation: authority.designation,
+          department: authority.department,
+          category_group: authority.category_group,
+          has_login_account: Boolean(userId),
+          timestamp: new Date().toISOString()
         }
-      });
-
-      return { user, authority };
+      }
     });
 
     return res.status(201).json({
-      message: 'Authority account created successfully',
-      authority: {
-        id: result.authority.id,
-        user_id: result.user.id,
-        name: result.user.name,
-        department: result.authority.department,
-        designation: result.authority.designation,
-        responsibilities: result.authority.responsibilities
-      },
-      profile: formatUser({ ...result.user, authority_profile: result.authority })
+      message: 'Institutional authority registered successfully',
+      authority
     });
   } catch (error) {
     next(error);

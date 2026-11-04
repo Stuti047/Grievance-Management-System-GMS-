@@ -414,21 +414,74 @@ export const admin = {
     }
   },
 
-  async createAuthority({ name, college_email, email, sub_authority_id, designation, department }) {
+  async listAuthorities(params = { all: true }) {
     try {
-      const res = await apiClient.post('/authorities', {
-        name,
-        email: college_email || email,
-        sub_authority_id,
-        designation,
-        department
+      const res = await apiClient.get('/authorities', { params });
+      return { authorities: res.data.authorities || [] };
+    } catch (err) {
+      return { authorities: [], error: err.response?.data?.error || err.message };
+    }
+  },
+
+  async updateAuthority(id, data) {
+    try {
+      const res = await apiClient.put(`/authorities/${id}`, data);
+      return { authority: res.data.authority, message: res.data.message };
+    } catch (err) {
+      return { error: err.response?.data?.error || err.message || 'Failed to update authority' };
+    }
+  },
+
+  async getAuthorityAuditLogs() {
+    try {
+      const res = await apiClient.get('/authorities/audit-logs');
+      return { audit_logs: res.data.audit_logs || [] };
+    } catch (err) {
+      return { audit_logs: [], error: err.response?.data?.error };
+    }
+  },
+
+  async updateCategoryRouting(categoryId, data) {
+    try {
+      const res = await apiClient.put(`/categories/${categoryId}/routing`, data);
+      return { category: res.data.category, message: res.data.message };
+    } catch (err) {
+      return { error: err.response?.data?.error || err.message || 'Failed to update category routing' };
+    }
+  },
+
+  async createCategory(data) {
+    try {
+      const res = await apiClient.post('/categories', data);
+      return { category: res.data.category, message: res.data.message };
+    } catch (err) {
+      return { error: err.response?.data?.error || err.message || 'Failed to create category' };
+    }
+  },
+
+  async reassignGrievance(grievanceId, { authority_id, status, remarks }) {
+    try {
+      const res = await apiClient.put(`/grievances/${grievanceId}/status`, {
+        status: status || 'Assigned',
+        assigned_authority_id: authority_id,
+        remarks: remarks || 'Reassigned by Administration'
       });
+      return { grievance: res.data.grievance, message: res.data.message };
+    } catch (err) {
+      return { error: err.response?.data?.error || err.message || 'Failed to reassign grievance' };
+    }
+  },
+
+  async createAuthority(data) {
+    try {
+      const res = await apiClient.post('/authorities', data);
       return {
         authority: res.data.authority,
-        profile: res.data.profile
+        profile: res.data.profile,
+        message: res.data.message
       };
     } catch (err) {
-      return { error: err.response?.data?.error || err.message || 'Failed to create authority account' };
+      return { error: err.response?.data?.error || err.message || 'Failed to create authority record' };
     }
   },
 
